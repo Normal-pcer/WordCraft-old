@@ -31,7 +31,7 @@ class GameRenderer:
     def __init__(self, running_save: World, game_window: pygame.Surface):
         self.runningSave = running_save
         self.gameWindow = game_window
-        self.worldRender = self.WorldRenderer(game_window)
+        self.worldRender = self.WorldRenderer(game_window, running_save)
 
     def frame(self):
         self.worldRender.frame()

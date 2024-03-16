@@ -12,3 +12,4 @@ class Entity:
 
     def __init__(self, type_id):
         self.typeId = type_id
+        self.position = self.Position(0.0, 0.0)

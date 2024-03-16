@@ -5,13 +5,11 @@ class WorldRenderer:
     """
     import pygame
     from entity import Player
+    from world import World
     gameWindow = pygame.Surface
     relativePlayer: Player
-    # Number of blocks between player's foot and left edge (including the edge block)
-    playerToLeftBlocks: int
-    playerToRightBlocks: int
-    playerToBottomBlocks: int
-    playerToTopBlocks: int
+
+    runningSave: World
     fontSize = 60
 
     class BlockTexture:
@@ -72,24 +70,49 @@ class WorldRenderer:
             """
             Convert to a pygame.Surface object
             """
-            text_surface = self.font.render(self.character, True, self.color)
+            return self.font.render(self.character, True, self.color)
 
-    def __init__(self, game_window: pygame.Surface):
+    def __init__(self, game_window: pygame.Surface, running_save: World):
         self.gameWindow = game_window
+        self.runningSave = running_save
+        self.relativePlayer = self.Player()
 
     def frame(self):
         import math
+        from util import Debug
 
         # Calculate grid size required
         width, height = self.gameWindow.get_size()
-        half_width = (width-self.fontSize)/2
-        quarter_height = (height-self.fontSize)/4
-        
-        self.playerToLeftBlocks = math.floor(half_width / self.fontSize)
-        self.playerToRightBlocks = math.floor(half_width / self.fontSize)
-        self.playerToBottomBlocks = math.floor(quarter_height / self.fontSize)
-        self.playerToTopBlocks = math.floor(quarter_height * 3 / self.fontSize)
+        half_width = (width - self.fontSize) / 2
+        quarter_height = (height - self.fontSize) / 4
 
+        player_to_left_blocks = math.ceil(half_width / self.fontSize) + 1
+        player_to_right_blocks = math.ceil(half_width / self.fontSize) + 1
+        player_to_bottom_blocks = math.ceil(quarter_height / self.fontSize) + 1
+        player_to_top_blocks = math.ceil(quarter_height * 3 / self.fontSize) + 1
 
+        player_feet_in_screen_x = half_width - self.fontSize / 2
+        player_feet_in_screen_y = quarter_height * 3 - self.fontSize / 2
 
+        player_feet_x = int(self.relativePlayer.playerEntity.position.x)
+        player_feet_y = int(self.relativePlayer.playerEntity.position.y)
 
+        # Get blocks in the zone
+        grid = self.runningSave.get_blocks(
+            player_feet_x - player_to_left_blocks, player_feet_x + player_to_right_blocks,
+            player_feet_y - player_to_bottom_blocks, player_feet_y + player_to_top_blocks)
+        grid = grid[::-1]
+
+        # Rendering block position
+        screen_y = player_feet_in_screen_y - self.fontSize * player_to_top_blocks
+        screen_x = player_feet_in_screen_x - self.fontSize * player_to_left_blocks
+
+        for blocks_y in range(len(grid)):
+            for blocks_x in range(len(grid[0])):
+                self.gameWindow.blit(
+                    self.BlockTexture.get_block_texture(grid[blocks_y][blocks_x].blockId).
+                    to_surface(), (screen_x, screen_y)
+                )
+                screen_x += self.fontSize
+            screen_x = player_feet_in_screen_x - self.fontSize * player_to_left_blocks
+            screen_y += self.fontSize
