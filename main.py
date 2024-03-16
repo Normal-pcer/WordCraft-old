@@ -3,14 +3,15 @@ class Main:
     def main():
         import pygame
         from client import GameRenderer
-        from world import Save, SaveDir
+        from world import World, SaveDir
         from util import Debug
 
         pygame.init()
         game_window = pygame.display.set_mode((1024, 720), pygame.RESIZABLE)
-        running_save = Save("New World", SaveDir("saves/New World"))
+        running_save = World("New World", SaveDir("saves/New World"))
         game_renderer = GameRenderer(running_save, game_window)
         try:
+            Debug.Log.info(str(running_save.get_blocks(-5, 7, -3, 9)))
             while True:
                 response = game_renderer.frame()
                 if response.type == GameRenderer.Response.ResponseType.quit:

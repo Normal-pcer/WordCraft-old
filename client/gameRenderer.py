@@ -4,11 +4,11 @@ class GameRenderer:
     Rendering world-agnostic interfaces (such as GUIs)
     """
 
-    from world import Save
+    from world import World
     from client import WorldRenderer
     import pygame
 
-    runningSave: Save
+    runningSave: World
     gameWindow: pygame.Surface
     worldRender: WorldRenderer
 
@@ -28,7 +28,7 @@ class GameRenderer:
             self.type = response_type
             self.arguments = args
 
-    def __init__(self, running_save: Save, game_window: pygame.Surface):
+    def __init__(self, running_save: World, game_window: pygame.Surface):
         self.runningSave = running_save
         self.gameWindow = game_window
         self.worldRender = self.WorldRenderer(game_window)

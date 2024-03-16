@@ -10,3 +10,7 @@ class Block:
 
     def __init__(self, block_id: Identifier):
         self.blockId = block_id
+
+    def __repr__(self):
+        from client import WorldRenderer
+        return WorldRenderer.BlockTexture.get_block_texture(self.blockId).character
