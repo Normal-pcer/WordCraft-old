@@ -1,3 +1,6 @@
+_cache_texture = {}
+
+
 class WorldRenderer:
     """
     wordcraft.client.WorldRenderer
@@ -24,7 +27,7 @@ class WorldRenderer:
         color: Tuple[int]
         font: pygame.font.Font
 
-        def __init__(self, character: str, color: Tuple[int], font="Simsun", font_size=60):
+        def __init__(self, character: str, color: Tuple[int], font="Microsoft YaHei", font_size=60):
             self.character = character
             self.color = color
             self.font = self.pygame.font.SysFont(font, font_size)
@@ -35,6 +38,8 @@ class WorldRenderer:
             Get a block texture object by the given identifier.
             default: Return when unable to find the texture file, etc.
             """
+            if str(identifier) in _cache_texture:
+                return _cache_texture[str(identifier)]
             from util import Read, Debug
             # Read index of texture packs
             textures_index_file = Read.read_str("textures/index.json", default=lambda e: Debug.Log.warning(
@@ -54,6 +59,7 @@ class WorldRenderer:
                                 blocks_texture_dict = json.loads(
                                     block_json_file)
                                 if identifier.path in blocks_texture_dict:
+                                    _cache_texture[str(identifier)] = cls(*blocks_texture_dict[identifier.path])
                                     return cls(*blocks_texture_dict[identifier.path])
                                 else:
                                     continue
@@ -72,12 +78,10 @@ class WorldRenderer:
             """
             return self.font.render(self.character, True, self.color)
 
-    def __init__(self, game_window: pygame.Surface, running_save: World):
-        from util import Position
+    def __init__(self, game_window: pygame.Surface, running_save: World, player: Player):
         self.gameWindow = game_window
         self.runningSave = running_save
-        self.relativePlayer = self.Player()
-        self.relativePlayer.playerEntity.position = Position(0, 3)
+        self.relativePlayer = player
 
     def frame(self):
         import math
@@ -110,7 +114,10 @@ class WorldRenderer:
 
         # Rendering block position
         screen_y = player_feet_in_screen_y - self.fontSize * player_to_top_blocks
-        screen_x = player_feet_in_screen_x - self.fontSize * player_to_left_blocks
+        screen_x = player_feet_in_screen_x - self.fontSize * player_to_left_blocks - (
+                self.relativePlayer.playerEntity.position.x - int(
+            self.relativePlayer.playerEntity.position.x)) * self.fontSize
+        # Debug.Log.info(str((screen_x, screen_y)))
 
         for blocks_y in range(len(grid)):
             for blocks_x in range(len(grid[0])):
@@ -119,5 +126,7 @@ class WorldRenderer:
                     to_surface(), (screen_x, screen_y)
                 )
                 screen_x += self.fontSize
-            screen_x = player_feet_in_screen_x - self.fontSize * player_to_left_blocks
+            screen_x = player_feet_in_screen_x - self.fontSize * player_to_left_blocks - (
+                    self.relativePlayer.playerEntity.position.x - int(
+                self.relativePlayer.playerEntity.position.x)) * self.fontSize
             screen_y += self.fontSize

@@ -6,6 +6,7 @@ class GameRenderer:
 
     from world import World
     from client import WorldRenderer
+    from entity import Player
     import pygame
 
     runningSave: World
@@ -28,10 +29,10 @@ class GameRenderer:
             self.type = response_type
             self.arguments = args
 
-    def __init__(self, running_save: World, game_window: pygame.Surface):
+    def __init__(self, running_save: World, game_window: pygame.Surface, player: Player):
         self.runningSave = running_save
         self.gameWindow = game_window
-        self.worldRender = self.WorldRenderer(game_window, running_save)
+        self.worldRender = self.WorldRenderer(game_window, running_save, player)
 
     def frame(self):
         self.gameWindow.fill((255, 255, 255))

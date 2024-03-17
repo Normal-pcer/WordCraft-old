@@ -1,7 +1,5 @@
 """
 wordcraft.util
-
-实用工具
 """
 from util.debug import Debug
 from util.identifier import Identifier

@@ -1,10 +1,15 @@
+from block import Block
+from util import Identifier
+from typing import List
+
+emptyBlock: Block = Block(Identifier("wordcraft", "air"))
+emptyGrid: List[List[Block]]
+
+
 class Chunk:
     """
     wordcraft.world.Chunk
     """
-    from typing import List
-    from block import Block
-    from util import Identifier
 
     topEdge: int = 320
     bottomEdge: int = 0
@@ -13,16 +18,14 @@ class Chunk:
     X (left edge) = chunkId*16
     """
     grid: List[List[Block]]
-    emptyGrid: List[List[Block]]
-    emptyBlock: Block = Block(Identifier("wordcraft", "air"))
 
-    @classmethod
-    def empty_block(cls):
-        return cls.emptyBlock
+    @staticmethod
+    def empty_block():
+        return emptyBlock
 
-    @classmethod
-    def empty_grid(cls):
-        return cls.emptyGrid
+    @staticmethod
+    def empty_grid():
+        return emptyGrid
 
     def __init__(self, chunk_id: int):
         self.chunkId = chunk_id
@@ -54,5 +57,4 @@ class Chunk:
         return self.grid
 
 
-Chunk.emptyGrid = [[Chunk.empty_block() for j in range(16)] for i in
-                   range(Chunk.bottomEdge, Chunk.topEdge + 1)]
+emptyGrid = [[emptyBlock for _ in range(16)] for _ in range(Chunk.bottomEdge, Chunk.topEdge + 1)]

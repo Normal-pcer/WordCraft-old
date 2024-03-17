@@ -97,7 +97,6 @@ class World:
         Returns:
             None.
         """
-        from util import Debug
         for i in self.loadedChunks:
             self.save_chunk(i)
 
@@ -127,7 +126,7 @@ class World:
             if index == -1:  # Not loaded
                 required_chunks[i] = self.load_chunk(
                     i) if allow_load else self.Chunk.empty(i)
-        catted_grid = [[] for i in range(top - bottom + 1)]
+        catted_grid = [[] for _ in range(top - bottom + 1)]
         for i in required_chunks:
             result = i.grid[bottom:top + 1]
             for j in range(len(result)):
