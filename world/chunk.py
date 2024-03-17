@@ -4,28 +4,27 @@ class Chunk:
     """
     from typing import List
     from block import Block
+    from util import Identifier
 
     topEdge: int = 320
-    bottomEdge: int = -64
+    bottomEdge: int = 0
     chunkId: int
     """
     X (left edge) = chunkId*16
     """
     grid: List[List[Block]]
     emptyGrid: List[List[Block]]
+    emptyBlock: Block = Block(Identifier("wordcraft", "air"))
 
-    @staticmethod
-    def empty_block():
-        from util import Identifier
-        from block import Block
-        return Block(Identifier("wordcraft", "air"))
+    @classmethod
+    def empty_block(cls):
+        return cls.emptyBlock
 
     @classmethod
     def empty_grid(cls):
-        return [[cls.empty_block() for j in range(16)]
-                for i in range(cls.bottomEdge, cls.topEdge)]
+        return cls.emptyGrid
 
-    def __init__(self, chunk_id):
+    def __init__(self, chunk_id: int):
         self.chunkId = chunk_id
 
     def get_storage_name(self):
@@ -36,11 +35,10 @@ class Chunk:
         """
         Generate an empty chunk (filled by wordcraft:air)
         """
-        from util import Identifier
-        from block import Block
-        cls.emptyBlock = Block(Identifier("wordcraft", "air"))
-        cls.emptyGrid = [[Block(Identifier("wordcraft", "air")) for j in range(16)]
-                         for i in range(cls.bottomEdge, cls.topEdge)]
-        cls.grid = cls.emptyGrid
+        cls.grid = cls.empty_grid()
         cls.chunkId = chunk_id
         return cls
+
+
+Chunk.emptyGrid = [[Chunk.empty_block() for j in range(16)] for i in
+                   range(Chunk.bottomEdge, Chunk.topEdge + 1)]

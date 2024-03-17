@@ -73,9 +73,11 @@ class WorldRenderer:
             return self.font.render(self.character, True, self.color)
 
     def __init__(self, game_window: pygame.Surface, running_save: World):
+        from util import Position
         self.gameWindow = game_window
         self.runningSave = running_save
         self.relativePlayer = self.Player()
+        self.relativePlayer.playerEntity.position = Position(0, 3)
 
     def frame(self):
         import math
@@ -101,6 +103,9 @@ class WorldRenderer:
         grid = self.runningSave.get_blocks(
             player_feet_x - player_to_left_blocks, player_feet_x + player_to_right_blocks,
             player_feet_y - player_to_bottom_blocks, player_feet_y + player_to_top_blocks)
+        # Debug.Log.info(str((
+        #     player_feet_x - player_to_left_blocks, player_feet_x + player_to_right_blocks,
+        #     player_feet_y - player_to_bottom_blocks, player_feet_y + player_to_top_blocks)))
         grid = grid[::-1]
 
         # Rendering block position

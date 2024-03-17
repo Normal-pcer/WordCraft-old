@@ -29,15 +29,18 @@ class World:
     """
     from typing import List
     from world.chunk import Chunk
+    from world.generator import Generator
 
     loadedChunks: List[Chunk]
     path: SaveDir
     name: str
+    generator: Generator
 
     def __init__(self, name: str, path: SaveDir):
         self.name = name
         self.path = path
         self.loadedChunks = list()
+        self.generator = self.Generator(self.Generator.GeneratorType.flat)
 
     def load_chunk(self, chunk_id: int, default: Chunk = ...) -> Chunk:
         """
@@ -46,10 +49,19 @@ class World:
         """
         result_chunk = self.Chunk(chunk_id)
         # file_content = self.path.read_file_content(result_chunk.get_storage_name())
-        return default if default is not ... else self.Chunk.empty(chunk_id)  # to be done
+        return default if default is not ... \
+            else self.generator.generate_chunk(chunk_id)  # to be done
 
     def get_blocks(self, left: int, right: int, bottom: int, top: int, allow_load=True):
-        # Calculate chunk id required
+        if bottom < self.Chunk.bottomEdge:
+            return ([[self.Chunk.empty_block() for _ in range(right - left + 1)] for _ in
+                     range(self.Chunk.bottomEdge - bottom)] +
+                    self.get_blocks(left, right, self.Chunk.bottomEdge, top, allow_load))
+        if top > self.Chunk.topEdge:
+            return self.get_blocks(left, right, bottom, self.Chunk.topEdge) + [
+                [self.Chunk.empty_block() for _ in range(right - left + 1)] for _ in
+                range(top - self.Chunk.topEdge)]
+            # Calculate chunk id required
         min_id = left // 16
         max_id = right // 16
 
@@ -64,15 +76,15 @@ class World:
                     break
             if index == -1:  # Not loaded
                 required_chunks[i] = self.load_chunk(i) if allow_load else self.Chunk.empty(i)
-        catted_grid = [[self.Chunk.empty_block() for j in range(right - left + 1)]
-                       for i in range(top - bottom + 1)]
+        catted_grid = [[] for i in range(top - bottom + 1)]
         for i in required_chunks:
             result = i.grid[bottom:top + 1]
-            if i.chunkId == min_id:
-                result = result[left % 16:]
-            if i.chunkId == max_id:
-                result = result[:right % 16 + 1]
             for j in range(len(result)):
-                catted_grid[j] += result[j]
+                row = result[j]
+                if i.chunkId == min_id:
+                    row = row[left % 16:]
+                if i.chunkId == max_id:
+                    row = row[:right % 16 + 1]
+                catted_grid[j] += row
 
         return catted_grid

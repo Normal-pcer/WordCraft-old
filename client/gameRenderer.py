@@ -34,6 +34,7 @@ class GameRenderer:
         self.worldRender = self.WorldRenderer(game_window, running_save)
 
     def frame(self):
+        self.gameWindow.fill((255, 255, 255))
         self.worldRender.frame()
         self.pygame.display.update()
         self.pygame.time.Clock().tick(self.fpsLimit)
