@@ -34,10 +34,24 @@ class Chunk:
     def empty(cls, chunk_id):
         """
         Generate an empty chunk (filled by wordcraft:air)
+        Args:
+            chunk_id: ID of the new chunk
+
+        Returns:
+            An empty chunk object
+
         """
         cls.grid = cls.empty_grid()
         cls.chunkId = chunk_id
         return cls
+
+    def serialize(self):
+        """
+        Serialize self to a list.
+        Returns:
+            A list which stored data of self.
+        """
+        return self.grid
 
 
 Chunk.emptyGrid = [[Chunk.empty_block() for j in range(16)] for i in

@@ -10,6 +10,8 @@ class SaveDir:
     def read_file_content(self, file_name: str):
         """
         Read a file in save dir
+        :param file_name: Compressed file to be read
+        :return: Uncompressed data of the file or None
         """
         import os
         import zlib
@@ -22,6 +24,21 @@ class SaveDir:
         except FileNotFoundError | zlib.error:
             return None
 
+    def write_file_content(self, file_name: str, data: bytes):
+        """
+        Write to a file in save dir
+        :param file_name: File to be written
+        :param data: Uncompressed data
+        """
+        import os
+        import zlib
+
+        complete_path = os.path.join(self.root, file_name)
+
+        with open(complete_path, "wb") as f:
+            file_content = zlib.compress(data)
+            f.write(file_content)
+
 
 class World:
     """
@@ -30,6 +47,7 @@ class World:
     from typing import List
     from world.chunk import Chunk
     from world.generator import Generator
+    from block import Block
 
     loadedChunks: List[Chunk]
     path: SaveDir
@@ -43,16 +61,48 @@ class World:
         self.generator = self.Generator(self.Generator.GeneratorType.flat)
 
     def load_chunk(self, chunk_id: int, default: Chunk = ...) -> Chunk:
-        """
-        Load a chunk by given chunk id.
-        It will return default if not exist.
-        """
-        result_chunk = self.Chunk(chunk_id)
-        # file_content = self.path.read_file_content(result_chunk.get_storage_name())
-        return default if default is not ... \
-            else self.generator.generate_chunk(chunk_id)  # to be done
+        """Load a chunk from file
 
-    def get_blocks(self, left: int, right: int, bottom: int, top: int, allow_load=True):
+        Args:
+            chunk_id: ID of file to be read
+            default: Will be returned while file not exists. Defaults to Ellipsis.
+
+        Returns:
+            Target chunk object
+        """
+        result_chunk = default if default is not ... \
+            else self.generator.generate_chunk(chunk_id)
+        # file_content = self.path.read_file_content(result_chunk.get_storage_name())
+        self.loadedChunks.append(result_chunk)
+        return result_chunk  # to be done
+
+    def save_chunk(self, chunk: Chunk):
+        """
+        Save a chunk to a file in save dir.
+        Args:
+            chunk: The chunk to be saved.
+
+        Returns:
+            None.
+        """
+        import json
+        file = chunk.get_storage_name()
+        content_str = json.dumps(chunk, default=lambda obj: obj.serialize())
+        content = bytes(content_str, encoding="UTF-8")
+        self.path.write_file_content(file, content)
+
+    def save_all_chunks(self):
+        """
+        Save all loaded chunks.
+        Returns:
+            None.
+        """
+        from util import Debug
+        for i in self.loadedChunks:
+            self.save_chunk(i)
+
+    def get_blocks(self, left: int, right: int, bottom: int,
+                   top: int, allow_load=True) -> List[List[Block]]:
         if bottom < self.Chunk.bottomEdge:
             return ([[self.Chunk.empty_block() for _ in range(right - left + 1)] for _ in
                      range(self.Chunk.bottomEdge - bottom)] +
@@ -75,7 +125,8 @@ class World:
                     required_chunks[i] = self.loadedChunks[j]
                     break
             if index == -1:  # Not loaded
-                required_chunks[i] = self.load_chunk(i) if allow_load else self.Chunk.empty(i)
+                required_chunks[i] = self.load_chunk(
+                    i) if allow_load else self.Chunk.empty(i)
         catted_grid = [[] for i in range(top - bottom + 1)]
         for i in required_chunks:
             result = i.grid[bottom:top + 1]

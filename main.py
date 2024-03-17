@@ -14,6 +14,7 @@ class Main:
             while True:
                 response = game_renderer.frame()
                 if response.type == GameRenderer.Response.ResponseType.quit:
+                    running_save.save_all_chunks()
                     break
         except Exception as exception:
             import traceback

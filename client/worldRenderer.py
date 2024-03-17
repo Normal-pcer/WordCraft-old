@@ -33,7 +33,7 @@ class WorldRenderer:
         def get_block_texture(cls, identifier: Identifier, default=("材质丢失", (0, 0, 0))):
             """
             Get a block texture object by the given identifier.
-            Default: Return when unable to find the texture file, etc.
+            default: Return when unable to find the texture file, etc.
             """
             from util import Read, Debug
             # Read index of texture packs

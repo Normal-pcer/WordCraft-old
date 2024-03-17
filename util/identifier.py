@@ -1,8 +1,6 @@
 class Identifier:
     """
     wordcraft.util.Identifier
-
-    标识符
     """
 
     namespace: str
@@ -13,4 +11,10 @@ class Identifier:
         self.path = path
 
     def __str__(self):
+        return self.namespace + ":" + self.path
+
+    def __repr__(self):
+        return self.namespace + ":" + self.path
+
+    def serialize(self):
         return self.namespace + ":" + self.path
