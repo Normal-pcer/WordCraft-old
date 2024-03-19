@@ -21,7 +21,9 @@ class SaveDir:
             with open(complete_path, "rb") as f:
                 file_content: bytes = zlib.decompress(f.read())
                 return file_content
-        except FileNotFoundError | zlib.error:
+        except FileNotFoundError:
+            return None
+        except zlib.error:
             return None
 
     def write_file_content(self, file_name: str, data: bytes):
@@ -70,11 +72,31 @@ class World:
         Returns:
             Target chunk object
         """
-        result_chunk = default if default is not ... \
-            else self.generator.generate_chunk(chunk_id)
-        # file_content = self.path.read_file_content(result_chunk.get_storage_name())
+        result_chunk = self.Chunk.empty(chunk_id)
+        file_content = self.path.read_file_content(
+            result_chunk.get_storage_name())
+        if file_content is not None:
+            import json
+            from typing import List, Dict
+            from util import Identifier
+
+            file_content_str = str(file_content, encoding="UTF-8")
+            file_content_list: List[List[str | Dict[str, any]]] = (
+                json.loads(file_content_str))
+            for row in range(result_chunk.topEdge - result_chunk.bottomEdge + 1):
+                for block in range(16):
+                    block_data = file_content_list[row][block]
+                    block_object: World.Block
+                    if isinstance(block_data, str):
+                        block_object = self.Block(Identifier.deserialize(block_data))
+                    else:
+                        block_object = self.Block(Identifier(block_data["blockId"]))
+                    result_chunk.grid[row][block] = block_object
+        else:
+            result_chunk = default if default is not ... else \
+                self.generator.generate_chunk(chunk_id)
         self.loadedChunks.append(result_chunk)
-        return result_chunk  # to be done
+        return result_chunk
 
     def save_chunk(self, chunk: Chunk):
         """
@@ -100,32 +122,31 @@ class World:
         for i in self.loadedChunks:
             self.save_chunk(i)
 
-    def get_blocks(self, left: int, right: int, bottom: int,
-                   top: int, allow_load=True) -> List[List[Block]]:
+    def get_blocks(self, left: int, right: int, bottom: int, top: int, allow_load=True) \
+            -> List[List[Block]]:
         if bottom < self.Chunk.bottomEdge:
             return ([[self.Chunk.empty_block() for _ in range(right - left + 1)] for _ in
-                     range(self.Chunk.bottomEdge - bottom)] +
-                    self.get_blocks(left, right, self.Chunk.bottomEdge, top, allow_load))
+                     range(self.Chunk.bottomEdge - bottom)] + self.get_blocks(
+                left, right, self.Chunk.bottomEdge, top, allow_load))
         if top > self.Chunk.topEdge:
             return self.get_blocks(left, right, bottom, self.Chunk.topEdge) + [
                 [self.Chunk.empty_block() for _ in range(right - left + 1)] for _ in
-                range(top - self.Chunk.topEdge)]
-            # Calculate chunk id required
+                range(top - self.Chunk.topEdge)]  # Calculate chunk id required
         min_id = left // 16
         max_id = right // 16
 
-        required_chunks = [self.Chunk.empty(0)] * (max_id - min_id + 1)
+        required_chunks = list()
         for i in range(min_id, max_id + 1):  # Make sure all chunks are loaded
             index = -1
             for j in range(len(self.loadedChunks)):
                 element = self.loadedChunks[j]
                 if element.chunkId == i:
                     index = j
-                    required_chunks[i] = self.loadedChunks[j]
+                    required_chunks.append(self.loadedChunks[j])
                     break
             if index == -1:  # Not loaded
-                required_chunks[i] = self.load_chunk(
-                    i) if allow_load else self.Chunk.empty(i)
+                required_chunks.append(self.load_chunk(
+                    i) if allow_load else self.Chunk.empty(i))
         catted_grid = [[] for _ in range(top - bottom + 1)]
         for i in required_chunks:
             result = i.grid[bottom:top + 1]

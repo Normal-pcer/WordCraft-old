@@ -23,7 +23,7 @@ class Generator:
         if self.generatorType is self.GeneratorType.flat:
             result_chunk = Chunk(chunk_id)
             template = [("wordcraft", "bedrock")] * 1 + \
-                       [("wordcraft", "stone")] * 2 + \
+                       [("wordcraft", "stone")] * 4 + \
                        [("wordcraft", "grass_block")] * 1
 
             grid = list()

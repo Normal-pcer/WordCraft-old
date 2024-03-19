@@ -1,6 +1,9 @@
+from typing import List
+
 from block import Block
 from util import Identifier
-from typing import List
+
+inited: bool = False
 
 emptyBlock: Block = Block(Identifier("wordcraft", "air"))
 emptyGrid: List[List[Block]]
@@ -44,9 +47,9 @@ class Chunk:
             An empty chunk object
 
         """
-        cls.grid = cls.empty_grid()
-        cls.chunkId = chunk_id
-        return cls
+        result = cls(chunk_id)
+        result.grid = cls.empty_grid()
+        return result
 
     def serialize(self):
         """
@@ -57,4 +60,7 @@ class Chunk:
         return self.grid
 
 
-emptyGrid = [[emptyBlock for _ in range(16)] for _ in range(Chunk.bottomEdge, Chunk.topEdge + 1)]
+if not inited:
+    emptyGrid = [[emptyBlock for _ in range(16)] for _ in range(
+        Chunk.bottomEdge, Chunk.topEdge + 1)]
+    inited = True
