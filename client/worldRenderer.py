@@ -84,6 +84,86 @@ class WorldRenderer:
             """
             return self.font.render(self.character, True, self.color)
 
+    class EntityTexture:
+        from typing import Tuple, List
+        from util import Identifier, Position
+        import pygame
+
+        characters: List[str]
+        color: Tuple[int]
+        font: pygame.font.Font
+        fontSize: int
+
+        def __init__(self, characters: List[str], color: Tuple[int], font="Microsoft YaHei",
+                     font_size=60):
+            self.characters = characters
+            self.color = color
+            self.font = self.pygame.font.SysFont(font, font_size)
+            self.fontSize = font_size
+            ...
+
+        @classmethod
+        def get_entity_texture(cls, identifier: Identifier,
+                               default=(["〇"], (0, 0, 0))):
+            """
+            Get an entity texture object by the given identifier.
+            default: Return when unable to find the texture file, etc.
+            """
+
+            if str(identifier) in _cache_texture:
+                return _cache_texture[str(identifier)]
+            from util import Read, Debug
+            # Read index of texture packs
+            textures_index_file = Read.read_str(
+                "textures/index.json", default=lambda e: Debug.Log.warning(
+                    "Exception while reading textures index: " + repr(e)))
+            if textures_index_file is not None:
+                import json
+                try:
+                    textures_index = json.loads(textures_index_file)
+                    # Read texture packs in json order
+                    for texture_pack in textures_index:
+                        block_json_file = Read.read_str(
+                            "textures/" + texture_pack + "/" +
+                            identifier.namespace + "/entities/entities.json")
+                        try:
+                            if block_json_file is None:
+                                continue
+                            else:
+                                blocks_texture_dict = json.loads(
+                                    block_json_file)
+                                if identifier.path in blocks_texture_dict:
+                                    _cache_texture[str(identifier)] = (
+                                        cls(*blocks_texture_dict[identifier.path]))
+                                    return cls(*blocks_texture_dict[identifier.path])
+                                else:
+                                    continue
+                        except json.decoder.JSONDecodeError as exception:
+                            Debug.Log.warning(
+                                "Exception while loading " + "textures/" + texture_pack
+                                + "/" + identifier.namespace + "/entities/entities.json" + ":"
+                                + repr(exception))
+                except json.decoder.JSONDecodeError as exception:
+                    Debug.Log.warning(
+                        "Exception while loading textures index: " + repr(exception))
+            return cls(*default)
+
+        def blit(self, window: pygame.surface.Surface, destination: Position) -> None:
+            """
+            Display this on a game window.
+            destination: left top screen position
+            """
+            for y_block in range(len(self.characters)):
+                for x_block in range(len(self.characters[y_block])):
+                    element = self.characters[y_block][x_block]
+                    p_x = destination.x + self.fontSize * x_block
+                    p_y = destination.y + self.fontSize * y_block
+                    window.blit(self.font.render(element, True, self.color),
+                                (p_x, p_y))
+                    ...
+
+            # return self.font.render(self.character, True, self.color)
+
     def __init__(self, game_window: pygame.Surface, running_save: World,
                  player: Player):
         self.gameWindow = game_window
@@ -92,6 +172,7 @@ class WorldRenderer:
 
     def frame(self):
         import math
+        from util import Position
 
         # Calculate grid size required
         width, height = self.gameWindow.get_size()
@@ -121,8 +202,8 @@ class WorldRenderer:
         # Rendering block position
         screen_y = player_feet_in_screen_y - self.fontSize * player_to_top_blocks
         screen_x = player_feet_in_screen_x - self.fontSize * player_to_left_blocks - (
-            self.relativePlayer.playerEntity.position.x - int(
-                self.relativePlayer.playerEntity.position.x)) * self.fontSize
+                self.relativePlayer.playerEntity.position.x - int(
+            self.relativePlayer.playerEntity.position.x)) * self.fontSize
         # Debug.Log.info(str((screen_x, screen_y)))
 
         for blocks_y in range(len(grid)):
@@ -133,6 +214,10 @@ class WorldRenderer:
                 )
                 screen_x += self.fontSize
             screen_x = player_feet_in_screen_x - self.fontSize * player_to_left_blocks - (
-                self.relativePlayer.playerEntity.position.x - int(
-                    self.relativePlayer.playerEntity.position.x)) * self.fontSize
+                    self.relativePlayer.playerEntity.position.x - int(
+                self.relativePlayer.playerEntity.position.x)) * self.fontSize
             screen_y += self.fontSize
+
+        player_texture = self.EntityTexture.get_entity_texture(
+            self.relativePlayer.playerEntity.typeId)
+        player_texture.blit(self.gameWindow, Position(0 * 1.0, 0 * 1.0))
