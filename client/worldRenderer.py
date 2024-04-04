@@ -173,6 +173,7 @@ class WorldRenderer:
     def frame(self):
         import math
         from util import Vector2
+        from time import perf_counter
 
         # Calculate grid size required
         width, height = self.gameWindow.get_size()
@@ -200,10 +201,15 @@ class WorldRenderer:
         grid = grid[::-1]
 
         # Rendering block position
+        current_time = perf_counter()
+        pass_time = current_time - self.runningSave.lastTickTime
+        player_x = (self.relativePlayer.playerEntity.position.x +
+                    self.relativePlayer.playerEntity.speed.x * pass_time)
+        player_y = (self.relativePlayer.playerEntity.position.y +
+                    self.relativePlayer.playerEntity.speed.y * pass_time)
         screen_y = player_feet_in_screen_y - self.fontSize * player_to_top_blocks
-        screen_x = player_feet_in_screen_x - self.fontSize * player_to_left_blocks - (
-                self.relativePlayer.playerEntity.position.x - int(
-            self.relativePlayer.playerEntity.position.x)) * self.fontSize
+        screen_x = (player_feet_in_screen_x - self.fontSize * player_to_left_blocks -
+                    (player_x - int(player_x)) * self.fontSize)
         # Debug.Log.info(str((screen_x, screen_y)))
 
         for blocks_y in range(len(grid)):
@@ -213,9 +219,8 @@ class WorldRenderer:
                     to_surface(), (screen_x, screen_y)
                 )
                 screen_x += self.fontSize
-            screen_x = player_feet_in_screen_x - self.fontSize * player_to_left_blocks - (
-                    self.relativePlayer.playerEntity.position.x - int(
-                self.relativePlayer.playerEntity.position.x)) * self.fontSize
+            screen_x = (player_feet_in_screen_x - self.fontSize * player_to_left_blocks -
+                        (player_x - int(player_x)) * self.fontSize)
             screen_y += self.fontSize
 
         player_texture = self.EntityTexture.get_entity_texture(

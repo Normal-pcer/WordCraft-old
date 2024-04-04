@@ -2,6 +2,7 @@ from typing import List
 
 from block import Block
 from util import Identifier
+from entity import Entity
 
 inited: bool = False
 
@@ -21,6 +22,7 @@ class Chunk:
     X (left edge) = chunkId*16
     """
     grid: List[List[Block]]
+    entities: List[Entity]
 
     @staticmethod
     def empty_block():

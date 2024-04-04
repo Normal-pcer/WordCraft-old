@@ -12,11 +12,11 @@ class Main:
         running_save = World("New World", SaveDir("saves/New World"))
         local_player = Player()
         game_renderer = GameRenderer(running_save, game_window, local_player)
+        pygame.key.stop_text_input()
 
         local_player.playerEntity.position = Vector2(0, 5)
         try:
             while True:
-                local_player.playerEntity.position.x += 0.1
                 response = game_renderer.frame()
                 if response.type == GameRenderer.Response.ResponseType.quit:
                     running_save.save_all_chunks()

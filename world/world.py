@@ -50,11 +50,15 @@ class World:
     from world.chunk import Chunk
     from world.generator import Generator
     from block import Block
+    from time import perf_counter
 
     loadedChunks: List[Chunk]
     path: SaveDir
     name: str
     generator: Generator
+    tick: int
+    lastTickTime: float = 0.0
+    MAX_TPS = 20
 
     def __init__(self, name: str, path: SaveDir):
         self.name = name
@@ -159,3 +163,6 @@ class World:
                 catted_grid[j] += row
 
         return catted_grid
+
+    def tick(self):
+        pass

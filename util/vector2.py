@@ -11,3 +11,10 @@ class Vector2:
 
     def to_tuple(self):
         return self.x, self.y
+
+    def __add__(self, other):
+        return Vector2(self.x + other.x, self.y + other.y)
+
+    def __abs__(self) -> float:
+        from math import sqrt, pow
+        return sqrt(pow(self.x, 2) + pow(self.y, 2))

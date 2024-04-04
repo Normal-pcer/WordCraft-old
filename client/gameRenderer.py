@@ -1,3 +1,6 @@
+import pygame
+
+
 class GameRenderer:
     """
     wordcraft.client.GameRenderer
@@ -35,16 +38,25 @@ class GameRenderer:
         self.worldRender = self.WorldRenderer(game_window, running_save, player)
 
     def frame(self):
+        from util import Debug
         self.gameWindow.fill((255, 255, 255))
         self.worldRender.frame()
         self.pygame.display.update()
         self.pygame.time.Clock().tick(self.fpsLimit)
+
         for event in self.pygame.event.get():
             if event.type == self.pygame.QUIT:
                 return self.Response(self.Response.ResponseType.quit, {})
             if event.type == self.pygame.VIDEORESIZE:
                 self.gameWindow = self.pygame.display.set_mode(event.size, self.pygame.RESIZABLE)
                 self.worldRender.gameWindow = self.gameWindow
-            if event.type == self.pygame.KEYDOWN:
-                pass
+        pressed = self.pygame.key.get_pressed()
+        if pressed[self.pygame.K_a]:
+            Debug.Log.info("a")
+            self.worldRender.relativePlayer.playerEntity.speed.x = -5.0
+        elif pressed[self.pygame.K_d]:
+            Debug.Log.info("d")
+            self.worldRender.relativePlayer.playerEntity.speed.x = 5.0
+
+
         return self.Response(self.Response.ResponseType.nothing, {})
