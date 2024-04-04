@@ -22,7 +22,7 @@ class Chunk:
     X (left edge) = chunkId*16
     """
     grid: List[List[Block]]
-    entities: List[Entity] = list()
+    entities: List[Entity]
 
     @staticmethod
     def empty_block():
@@ -34,6 +34,7 @@ class Chunk:
 
     def __init__(self, chunk_id: int):
         self.chunkId = chunk_id
+        self.entities = list()
 
     def get_storage_name(self):
         return 'chunk_' + str(self.chunkId) + '.dat'

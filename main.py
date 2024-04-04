@@ -14,7 +14,7 @@ class Main:
         game_renderer = GameRenderer(running_save, game_window, local_player)
 
         pygame.key.stop_text_input()
-        local_player.playerEntity.position = Vector2(0, 5)
+        local_player.playerEntity.position = Vector2(10000, 5)
         running_save.init(local_player)
 
         try:

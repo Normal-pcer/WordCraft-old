@@ -56,7 +56,7 @@ class World:
     path: SaveDir
     name: str
     generator: Generator
-    tick: int
+    tickNumber: int = 0
     lastTickTime: float = 0.0
     MAX_TPS = 20
 
@@ -185,18 +185,20 @@ class World:
         if (current_time - self.lastTickTime) < 1 / self.MAX_TPS:
             return
 
+        players_count = 0
         for c in self.loadedChunks:
             for e in c.entities:
+                if e.typeId.path == "player":
+                    players_count += 1
                 # Calculate position
                 e.position = e.position + e.speed * (current_time - self.lastTickTime)
                 # Resistant force
                 if e.speed.x > 0:
                     e.speed.x = max(0.0, e.speed.x - 5.0 * (current_time - self.lastTickTime))
-                    print(e.speed.x)
                 else:
                     e.speed.x = min(0.0, e.speed.x + 5.0 * (current_time - self.lastTickTime))
-
         self.lastTickTime = current_time
+        self.tickNumber += 1
 
     def entity_on_solid(self, entity: Entity):
         container_chunk = self.get_chunk(int(entity.position.x) // 16)

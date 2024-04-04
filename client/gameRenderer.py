@@ -49,10 +49,8 @@ class GameRenderer:
                 self.worldRender.gameWindow = self.gameWindow
         pressed = self.pygame.key.get_pressed()
         if pressed[self.pygame.K_a]:
-            Debug.Log.info("a")
             self.worldRender.relativePlayer.playerEntity.speed.x = -5.0
         elif pressed[self.pygame.K_d]:
-            Debug.Log.info("d")
             self.worldRender.relativePlayer.playerEntity.speed.x = 5.0
 
         return self.Response(self.Response.ResponseType.nothing, {})

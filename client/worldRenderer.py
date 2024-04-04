@@ -196,7 +196,6 @@ class WorldRenderer:
         grid = self.runningSave.get_blocks(
             player_feet_x - player_to_left_blocks, player_feet_x + player_to_right_blocks,
             player_feet_y - player_to_bottom_blocks, player_feet_y + player_to_top_blocks)
-        # Debug.Log.info(str((
 
         grid = grid[::-1]
 
@@ -210,7 +209,6 @@ class WorldRenderer:
         screen_y = player_feet_in_screen_y - self.fontSize * player_to_top_blocks
         screen_x = (player_feet_in_screen_x - self.fontSize * player_to_left_blocks -
                     (player_x - int(player_x)) * self.fontSize)
-        # Debug.Log.info(str((screen_x, screen_y)))
 
         for blocks_y in range(len(grid)):
             for blocks_x in range(len(grid[0])):
