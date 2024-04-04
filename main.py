@@ -13,7 +13,7 @@ class Main:
         local_player = Player()
         game_renderer = GameRenderer(running_save, game_window, local_player)
 
-        local_player.playerEntity.position = Position(0, 0)
+        local_player.playerEntity.position = Position(0, 5)
         try:
             while True:
                 local_player.playerEntity.position.x += 0.1

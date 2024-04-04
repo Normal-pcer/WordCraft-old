@@ -220,4 +220,5 @@ class WorldRenderer:
 
         player_texture = self.EntityTexture.get_entity_texture(
             self.relativePlayer.playerEntity.typeId)
-        player_texture.blit(self.gameWindow, Position(0 * 1.0, 0 * 1.0))
+        player_texture.blit(self.gameWindow,
+                            Position(player_feet_in_screen_x, player_feet_in_screen_y))
