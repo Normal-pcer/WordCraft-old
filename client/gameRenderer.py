@@ -13,7 +13,7 @@ class GameRenderer:
     gameWindow: pygame.Surface
     worldRender: WorldRenderer
 
-    fpsLimit: int = 60
+    fpsLimit: int = 30
 
     class Response:
         from enum import Enum
@@ -52,5 +52,8 @@ class GameRenderer:
             self.worldRender.relativePlayer.playerEntity.speed.x = -5.0
         elif pressed[self.pygame.K_d]:
             self.worldRender.relativePlayer.playerEntity.speed.x = 5.0
+        elif pressed[self.pygame.K_SPACE]:
+            if self.runningSave.entity_on_solid(self.worldRender.relativePlayer.playerEntity):
+                self.worldRender.relativePlayer.playerEntity.speed.y = 5.0
 
         return self.Response(self.Response.ResponseType.nothing, {})

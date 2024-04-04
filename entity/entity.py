@@ -10,8 +10,12 @@ class Entity:
     position: Vector2
     typeId: Identifier
     speed: Vector2
+    width: int
+    height: int
 
     def __init__(self, type_id: Identifier):
         self.typeId = type_id
         self.position = self.Vector2(0.0, 0.0)
         self.speed = self.Vector2(0.0, 0.0)
+        self.width = 1
+        self.height = 2

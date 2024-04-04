@@ -26,4 +26,7 @@ class Vector2:
         return "({}, {})".format(str(self.x), str(self.y))
 
     def __repr__(self):
-        return "Vector2"+str(self)
+        return "Vector2" + str(self)
+
+    def to_int(self):
+        return Vector2(int(self.x) * 1.0, int(self.y) * 1.0)

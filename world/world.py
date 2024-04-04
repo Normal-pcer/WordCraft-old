@@ -58,6 +58,7 @@ class World:
     generator: Generator
     tickNumber: int = 0
     lastTickTime: float = 0.0
+    gravity_g = 10
     MAX_TPS = 20
 
     def __init__(self, name: str, path: SaveDir):
@@ -178,8 +179,13 @@ class World:
 
         return catted_grid
 
+    def get_block(self, x: int, y: int):
+        return self.get_blocks(x, x, y, y)[0][0]
+
     def tick(self):
         from time import perf_counter
+        from math import ceil
+        from util import Vector2
         current_time = perf_counter()
 
         if (current_time - self.lastTickTime) < 1 / self.MAX_TPS:
@@ -194,16 +200,33 @@ class World:
                 e.position = e.position + e.speed * (current_time - self.lastTickTime)
                 # Resistant force
                 if e.speed.x > 0:
-                    e.speed.x = max(0.0, e.speed.x - 5.0 * (current_time - self.lastTickTime))
+                    e.speed.x = max(0.0, e.speed.x - 5.0 *
+                                    (current_time - self.lastTickTime))
                 else:
-                    e.speed.x = min(0.0, e.speed.x + 5.0 * (current_time - self.lastTickTime))
+                    e.speed.x = min(0.0, e.speed.x + 5.0 *
+                                    (current_time - self.lastTickTime))
+                # Gravity
+                if not self.entity_on_solid(e):
+                    e.speed.y -= 10.0 * (current_time - self.lastTickTime)
+                # Take out of solid
+                int_pos = e.position.to_int()
+                if self.get_block(int(int_pos.x), int(int_pos.y)).is_solid():
+                    x_m = e.position.x - int_pos.x
+                    y_m = e.position.y - int_pos.y
+                    x_nearest = ceil(x_m - 0.5)
+                    y_nearest = ceil(y_m - 0.5)
+                    target_pos = int_pos + Vector2(x_nearest, y_nearest)
+                    if not self.get_block(int(target_pos.x), int(target_pos.y)).is_solid():
+                        e.position = target_pos
+                    e.speed = Vector2(0, 0)
+                # print(e.speed, e.position)
         self.lastTickTime = current_time
         self.tickNumber += 1
 
     def entity_on_solid(self, entity: Entity):
         container_chunk = self.get_chunk(int(entity.position.x) // 16)
-        if entity.position.y - int(entity.position.y) < 0.1:
-            if (container_chunk.grid[int(entity.position.y)][int(entity.position.x) % 16]
-                    .blockId is not self.Chunk.empty_block().blockId):
-                return True
-        return False
+        return (entity.position.y - int(entity.position.y) < 0.1 and (
+            container_chunk.grid[int(entity.position.y - 1)]
+            [int(entity.position.x) % 16].is_solid())) or (
+            container_chunk.grid[int(entity.position.y)]
+            [int(entity.position.x) % 16].is_solid())

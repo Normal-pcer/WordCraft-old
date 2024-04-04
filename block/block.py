@@ -19,3 +19,6 @@ class Block:
             return str(self.blockId)  # No extra data
         else:
             return self.__dict__
+
+    def is_solid(self):
+        return str(self.blockId) != "wordcraft:air"

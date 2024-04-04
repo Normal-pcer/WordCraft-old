@@ -206,9 +206,13 @@ class WorldRenderer:
                     self.relativePlayer.playerEntity.speed.x * pass_time)
         player_y = (self.relativePlayer.playerEntity.position.y +
                     self.relativePlayer.playerEntity.speed.y * pass_time)
-        screen_y = player_feet_in_screen_y - self.fontSize * player_to_top_blocks
-        screen_x = (player_feet_in_screen_x - self.fontSize * player_to_left_blocks -
-                    (player_x - int(player_x)) * self.fontSize)
+        if player_y == int(player_y) and player_y == 5:
+            debugger = ...
+        print("#", player_x, player_y)
+        screen_y = (player_feet_in_screen_y - self.fontSize * (player_to_top_blocks - 1 -
+                    (player_y - int(player_y))))
+        screen_x = (player_feet_in_screen_x - self.fontSize * (player_to_left_blocks -
+                    (player_x - int(player_x))))
 
         for blocks_y in range(len(grid)):
             for blocks_x in range(len(grid[0])):
