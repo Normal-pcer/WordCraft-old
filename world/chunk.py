@@ -22,7 +22,7 @@ class Chunk:
     X (left edge) = chunkId*16
     """
     grid: List[List[Block]]
-    entities: List[Entity]
+    entities: List[Entity] = list()
 
     @staticmethod
     def empty_block():

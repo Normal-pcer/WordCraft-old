@@ -50,7 +50,7 @@ class World:
     from world.chunk import Chunk
     from world.generator import Generator
     from block import Block
-    from time import perf_counter
+    from entity import Entity, Player
 
     loadedChunks: List[Chunk]
     path: SaveDir
@@ -65,6 +65,19 @@ class World:
         self.path = path
         self.loadedChunks = list()
         self.generator = self.Generator(self.Generator.GeneratorType.flat)
+
+    def init(self, player: Player):
+        from time import perf_counter
+        initial_chunk = self.get_chunk(int(player.playerEntity.position.x) // 16)
+        initial_chunk.entities.append(player.playerEntity)
+        self.lastTickTime = perf_counter()
+
+    def get_chunk(self, chunk_id: int, default: Chunk = ...) -> Chunk:
+        for c in self.loadedChunks:
+            if c.chunkId == chunk_id:
+                return c
+
+        return self.load_chunk(chunk_id, default)
 
     def load_chunk(self, chunk_id: int, default: Chunk = ...) -> Chunk:
         """Load a chunk from file
@@ -94,7 +107,8 @@ class World:
                     if isinstance(block_data, str):
                         block_object = self.Block(Identifier.deserialize(block_data))
                     else:
-                        block_object = self.Block(Identifier(block_data["blockId"]))
+                        raise Exception("Unwritten function")
+                        # block_object = self.Block(Identifier(block_data["blockId"]))
                     result_chunk.grid[row][block] = block_object
         else:
             result_chunk = default if default is not ... else \
@@ -165,4 +179,29 @@ class World:
         return catted_grid
 
     def tick(self):
-        pass
+        from time import perf_counter
+        current_time = perf_counter()
+
+        if (current_time - self.lastTickTime) < 1 / self.MAX_TPS:
+            return
+
+        for c in self.loadedChunks:
+            for e in c.entities:
+                # Calculate position
+                e.position = e.position + e.speed * (current_time - self.lastTickTime)
+                # Resistant force
+                if e.speed.x > 0:
+                    e.speed.x = max(0.0, e.speed.x - 5.0 * (current_time - self.lastTickTime))
+                    print(e.speed.x)
+                else:
+                    e.speed.x = min(0.0, e.speed.x + 5.0 * (current_time - self.lastTickTime))
+
+        self.lastTickTime = current_time
+
+    def entity_on_solid(self, entity: Entity):
+        container_chunk = self.get_chunk(int(entity.position.x) // 16)
+        if entity.position.y - int(entity.position.y) < 0.1:
+            if (container_chunk.grid[int(entity.position.y)][int(entity.position.x) % 16]
+                    .blockId is not self.Chunk.empty_block().blockId):
+                return True
+        return False

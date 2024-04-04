@@ -18,3 +18,12 @@ class Vector2:
     def __abs__(self) -> float:
         from math import sqrt, pow
         return sqrt(pow(self.x, 2) + pow(self.y, 2))
+
+    def __mul__(self, other: float):
+        return Vector2(self.x * other, self.y * other)
+
+    def __str__(self):
+        return "({}, {})".format(str(self.x), str(self.y))
+
+    def __repr__(self):
+        return "Vector2"+str(self)
