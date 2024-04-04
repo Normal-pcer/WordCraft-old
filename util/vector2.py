@@ -1,4 +1,4 @@
-class Position:
+class Vector2:
     """
     wordcraft.util.Position
     """

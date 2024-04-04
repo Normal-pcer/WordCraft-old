@@ -45,4 +45,6 @@ class GameRenderer:
             if event.type == self.pygame.VIDEORESIZE:
                 self.gameWindow = self.pygame.display.set_mode(event.size, self.pygame.RESIZABLE)
                 self.worldRender.gameWindow = self.gameWindow
+            if event.type == self.pygame.KEYDOWN:
+                pass
         return self.Response(self.Response.ResponseType.nothing, {})

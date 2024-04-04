@@ -5,7 +5,7 @@ class Main:
         from client import GameRenderer
         from world import World, SaveDir
         from entity import Player
-        from util import Debug, Position
+        from util import Debug, Vector2
 
         pygame.init()
         game_window = pygame.display.set_mode((1024, 720), pygame.RESIZABLE)
@@ -13,7 +13,7 @@ class Main:
         local_player = Player()
         game_renderer = GameRenderer(running_save, game_window, local_player)
 
-        local_player.playerEntity.position = Position(0, 5)
+        local_player.playerEntity.position = Vector2(0, 5)
         try:
             while True:
                 local_player.playerEntity.position.x += 0.1

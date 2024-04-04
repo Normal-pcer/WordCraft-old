@@ -86,7 +86,7 @@ class WorldRenderer:
 
     class EntityTexture:
         from typing import Tuple, List
-        from util import Identifier, Position
+        from util import Identifier, Vector2
         import pygame
 
         characters: List[str]
@@ -148,7 +148,7 @@ class WorldRenderer:
                         "Exception while loading textures index: " + repr(exception))
             return cls(*default)
 
-        def blit(self, window: pygame.surface.Surface, destination: Position) -> None:
+        def blit(self, window: pygame.surface.Surface, destination: Vector2) -> None:
             """
             Display this on a game window.
             destination: left top screen position
@@ -172,7 +172,7 @@ class WorldRenderer:
 
     def frame(self):
         import math
-        from util import Position
+        from util import Vector2
 
         # Calculate grid size required
         width, height = self.gameWindow.get_size()
@@ -221,4 +221,4 @@ class WorldRenderer:
         player_texture = self.EntityTexture.get_entity_texture(
             self.relativePlayer.playerEntity.typeId)
         player_texture.blit(self.gameWindow,
-                            Position(player_feet_in_screen_x, player_feet_in_screen_y))
+                            Vector2(player_feet_in_screen_x, player_feet_in_screen_y))
