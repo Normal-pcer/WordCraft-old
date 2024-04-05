@@ -189,30 +189,31 @@ class WorldRenderer:
         player_feet_in_screen_x = half_width - self.fontSize / 2
         player_feet_in_screen_y = quarter_height * 3 - self.fontSize / 2
 
-        player_feet_x = int(self.relativePlayer.playerEntity.position.x)
-        player_feet_y = int(self.relativePlayer.playerEntity.position.y)
+        # player_feet_x = int(self.relativePlayer.playerEntity.position.x)
+        # player_feet_y = int(self.relativePlayer.playerEntity.position.y)
+
+        current_time = perf_counter()
+        pass_time = current_time - self.runningSave.lastTickTime
+        player_feet_x = (self.relativePlayer.playerEntity.position.x +
+                         self.relativePlayer.playerEntity.speed.x * pass_time)
+        player_feet_y = (self.relativePlayer.playerEntity.position.y +
+                         self.relativePlayer.playerEntity.speed.y * pass_time)
 
         # Get blocks in the zone
         grid = self.runningSave.get_blocks(
-            player_feet_x - player_to_left_blocks, player_feet_x + player_to_right_blocks,
-            player_feet_y - player_to_bottom_blocks, player_feet_y + player_to_top_blocks)
+            int(player_feet_x - player_to_left_blocks), int(player_feet_x + player_to_right_blocks),
+            int(player_feet_y - player_to_bottom_blocks), int(player_feet_y + player_to_top_blocks))
 
         grid = grid[::-1]
 
         # Rendering block position
-        current_time = perf_counter()
-        pass_time = current_time - self.runningSave.lastTickTime
-        player_x = (self.relativePlayer.playerEntity.position.x +
-                    self.relativePlayer.playerEntity.speed.x * pass_time)
-        player_y = (self.relativePlayer.playerEntity.position.y +
-                    self.relativePlayer.playerEntity.speed.y * pass_time)
-        if player_y == int(player_y) and player_y == 5:
-            debugger = ...
-        print("#", player_x, player_y)
         screen_y = (player_feet_in_screen_y - self.fontSize * (player_to_top_blocks - 1 -
-                    (player_y - int(player_y))))
+                                                               (player_feet_y - int(
+                                                                   player_feet_y))))
         screen_x = (player_feet_in_screen_x - self.fontSize * (player_to_left_blocks -
-                    (player_x - int(player_x))))
+                                                               (player_feet_x - int(
+                                                                   player_feet_x))))
+        print(screen_x, screen_y)
 
         for blocks_y in range(len(grid)):
             for blocks_x in range(len(grid[0])):
@@ -222,7 +223,7 @@ class WorldRenderer:
                 )
                 screen_x += self.fontSize
             screen_x = (player_feet_in_screen_x - self.fontSize * player_to_left_blocks -
-                        (player_x - int(player_x)) * self.fontSize)
+                        (player_feet_x - int(player_feet_x)) * self.fontSize)
             screen_y += self.fontSize
 
         player_texture = self.EntityTexture.get_entity_texture(
