@@ -207,13 +207,10 @@ class WorldRenderer:
         grid = grid[::-1]
 
         # Rendering block position
-        screen_y = (player_feet_in_screen_y - self.fontSize * (player_to_top_blocks - 1 -
-                                                               (player_feet_y - int(
-                                                                   player_feet_y))))
-        screen_x = (player_feet_in_screen_x - self.fontSize * (player_to_left_blocks -
-                                                               (player_feet_x - int(
-                                                                   player_feet_x))))
-        print(screen_x, screen_y)
+        screen_y = (player_feet_in_screen_y - self.fontSize *
+                    (player_to_top_blocks - 1 - (player_feet_y - int(player_feet_y))))
+        screen_x = (player_feet_in_screen_x - self.fontSize *
+                    (player_to_left_blocks - (player_feet_x - int(player_feet_x))))
 
         for blocks_y in range(len(grid)):
             for blocks_x in range(len(grid[0])):

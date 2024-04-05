@@ -13,7 +13,8 @@ class GameRenderer:
     gameWindow: pygame.Surface
     worldRender: WorldRenderer
 
-    fpsLimit: int = 30
+    fpsLimit: int = 60
+    lastFrameTime: float = 0
 
     class Response:
         from enum import Enum
@@ -35,12 +36,12 @@ class GameRenderer:
         self.worldRender = self.WorldRenderer(game_window, running_save, player)
 
     def frame(self):
-        from util import Debug
+        from time import perf_counter
         self.gameWindow.fill((255, 255, 255))
         self.worldRender.frame()
-        self.pygame.display.update()
         self.pygame.time.Clock().tick(self.fpsLimit)
 
+        # Keyboard
         for event in self.pygame.event.get():
             if event.type == self.pygame.QUIT:
                 return self.Response(self.Response.ResponseType.quit, {})
@@ -56,4 +57,12 @@ class GameRenderer:
             if self.runningSave.entity_on_solid(self.worldRender.relativePlayer.playerEntity):
                 self.worldRender.relativePlayer.playerEntity.speed.y = 5.0
 
+        # Data
+        current_time = perf_counter()
+        fps_string = "FPS: " + "{:.1f}".format(1/(current_time-self.lastFrameTime))
+        font = self.pygame.font.SysFont("Microsoft YaHei", 18)
+        self.gameWindow.blit(font.render(fps_string, True, (0, 0, 0)), (0, 0))
+
+        self.lastFrameTime = current_time
+        self.pygame.display.update()
         return self.Response(self.Response.ResponseType.nothing, {})

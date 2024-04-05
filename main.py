@@ -6,12 +6,14 @@ class Main:
         from world import World, SaveDir
         from entity import Player
         from util import Debug, Vector2
+        from time import perf_counter
 
         pygame.init()
         game_window = pygame.display.set_mode((1024, 720), pygame.RESIZABLE)
         running_save = World("New World", SaveDir("saves/New World"))
         local_player = Player()
         game_renderer = GameRenderer(running_save, game_window, local_player)
+        game_renderer.lastFrameTime = perf_counter()
 
         pygame.key.stop_text_input()
         local_player.playerEntity.position = Vector2(10000, 8)
