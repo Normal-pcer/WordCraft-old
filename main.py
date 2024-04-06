@@ -13,7 +13,7 @@ class Main:
         running_save = World("New World", SaveDir("saves/New World"))
         local_player = Player()
         game_renderer = GameRenderer(running_save, game_window, local_player)
-        game_renderer.lastFrameTime = perf_counter()
+        game_renderer.lastTenFrameTime = perf_counter()
 
         pygame.key.stop_text_input()
         local_player.playerEntity.position = Vector2(10000, 8)

@@ -1,3 +1,5 @@
+import pygame.mouse
+
 _cache_texture = {}
 
 
@@ -26,12 +28,14 @@ class WorldRenderer:
         character: str
         color: Tuple[int]
         font: pygame.font.Font
+        selected: bool
 
         def __init__(self, character: str, color: Tuple[int],
-                     font="Microsoft YaHei", font_size=60):
+                     font="Microsoft YaHei", selected=False, font_size=60):
             self.character = character
             self.color = color
             self.font = self.pygame.font.SysFont(font, font_size)
+            self.selected = selected
 
         @classmethod
         def get_block_texture(cls, identifier: Identifier,
@@ -78,11 +82,13 @@ class WorldRenderer:
                         "Exception while loading textures index: " + repr(exception))
             return cls(*default)
 
-        def to_surface(self):
-            """
-            Convert to a pygame.Surface object
-            """
-            return self.font.render(self.character, True, self.color)
+        def blit(self, window: pygame.surface.Surface, destination: tuple):
+            window.blit(self.font.render(self.character,
+                                         True, self.color), destination)
+            if self.selected:
+                window.blit(self.font.render(
+                    self.character, True, self.color, (200, 200, 200)),
+                    destination)
 
     class EntityTexture:
         from typing import Tuple, List
@@ -214,10 +220,15 @@ class WorldRenderer:
 
         for blocks_y in range(len(grid)):
             for blocks_x in range(len(grid[0])):
-                self.gameWindow.blit(
-                    self.BlockTexture.get_block_texture(grid[blocks_y][blocks_x].blockId).
-                    to_surface(), (screen_x, screen_y)
-                )
+                mouse_pos = pygame.mouse.get_pos()
+                texture = self.BlockTexture.get_block_texture(
+                    grid[blocks_y][blocks_x].blockId)
+                if screen_x <= mouse_pos[0] <= screen_x + self.fontSize and \
+                        screen_y <= mouse_pos[1] <= screen_y + self.fontSize:
+                    texture.selected = True
+                else:
+                    texture.selected = False
+                texture.blit(self.gameWindow, (screen_x, screen_y))
                 screen_x += self.fontSize
             screen_x = (player_feet_in_screen_x - self.fontSize * player_to_left_blocks -
                         (player_feet_x - int(player_feet_x)) * self.fontSize)

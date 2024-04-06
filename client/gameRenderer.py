@@ -13,8 +13,10 @@ class GameRenderer:
     gameWindow: pygame.Surface
     worldRender: WorldRenderer
 
-    fpsLimit: int = 60
-    lastFrameTime: float = 0
+    fpsLimit: int = 120
+    lastTenFrameTime: float = 0
+    lastFPS: float = 0
+    frameCount: int = 0
 
     class Response:
         from enum import Enum
@@ -51,18 +53,23 @@ class GameRenderer:
         pressed = self.pygame.key.get_pressed()
         if pressed[self.pygame.K_a]:
             self.worldRender.relativePlayer.playerEntity.speed.x = -5.0
-        elif pressed[self.pygame.K_d]:
+        if pressed[self.pygame.K_d]:
             self.worldRender.relativePlayer.playerEntity.speed.x = 5.0
-        elif pressed[self.pygame.K_SPACE]:
+        if pressed[self.pygame.K_SPACE]:
             if self.runningSave.entity_on_solid(self.worldRender.relativePlayer.playerEntity):
                 self.worldRender.relativePlayer.playerEntity.speed.y = 5.0
 
         # Data
         current_time = perf_counter()
-        fps_string = "FPS: " + "{:.1f}".format(1/(current_time-self.lastFrameTime))
+        if self.frameCount % 10 == 0:
+            self.lastFPS = (10 / (current_time - self.lastTenFrameTime)
+                            if self.frameCount != 0 else 0)
+            self.lastTenFrameTime = current_time
+
+        fps_string = "FPS: " + "{:.1f}".format(self.lastFPS)
         font = self.pygame.font.SysFont("Microsoft YaHei", 18)
         self.gameWindow.blit(font.render(fps_string, True, (0, 0, 0)), (0, 0))
 
-        self.lastFrameTime = current_time
         self.pygame.display.update()
+        self.frameCount += 1
         return self.Response(self.Response.ResponseType.nothing, {})
