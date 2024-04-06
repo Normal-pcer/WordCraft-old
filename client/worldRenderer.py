@@ -1,4 +1,4 @@
-import pygame.mouse
+import pygame.draw
 
 _cache_texture = {}
 
@@ -29,6 +29,7 @@ class WorldRenderer:
         color: Tuple[int]
         font: pygame.font.Font
         selected: bool
+        fontSize: int
 
         def __init__(self, character: str, color: Tuple[int],
                      font="Microsoft YaHei", selected=False, font_size=60):
@@ -36,6 +37,7 @@ class WorldRenderer:
             self.color = color
             self.font = self.pygame.font.SysFont(font, font_size)
             self.selected = selected
+            self.fontSize = font_size
 
         @classmethod
         def get_block_texture(cls, identifier: Identifier,
@@ -86,9 +88,12 @@ class WorldRenderer:
             window.blit(self.font.render(self.character,
                                          True, self.color), destination)
             if self.selected:
-                window.blit(self.font.render(
-                    self.character, True, self.color, (200, 200, 200)),
-                    destination)
+                # window.blit(self.font.render(
+                #     self.character, True, self.color, (200, 200, 200)),
+                #     destination)
+                pygame.draw.rect(window, (0, 0, 0), (
+                    destination[0], destination[1]+15, self.fontSize,
+                    self.fontSize), 2)
 
     class EntityTexture:
         from typing import Tuple, List
@@ -166,7 +171,6 @@ class WorldRenderer:
                     p_y = destination.y + self.fontSize * y_block
                     window.blit(self.font.render(element, True, self.color),
                                 (p_x, p_y))
-                    ...
 
             # return self.font.render(self.character, True, self.color)
 
@@ -220,11 +224,12 @@ class WorldRenderer:
 
         for blocks_y in range(len(grid)):
             for blocks_x in range(len(grid[0])):
-                mouse_pos = pygame.mouse.get_pos()
+                mouse_pos = self.pygame.mouse.get_pos()
                 texture = self.BlockTexture.get_block_texture(
                     grid[blocks_y][blocks_x].blockId)
-                if screen_x <= mouse_pos[0] <= screen_x + self.fontSize and \
-                        screen_y <= mouse_pos[1] <= screen_y + self.fontSize:
+                if (self.pygame.mouse.get_focused() and
+                        screen_x <= mouse_pos[0] < screen_x + self.fontSize and
+                        screen_y <= mouse_pos[1] - 15 < screen_y + self.fontSize):
                     texture.selected = True
                 else:
                     texture.selected = False

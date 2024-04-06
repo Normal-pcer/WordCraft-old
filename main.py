@@ -16,7 +16,7 @@ class Main:
         game_renderer.lastTenFrameTime = perf_counter()
 
         pygame.key.stop_text_input()
-        local_player.playerEntity.position = Vector2(10000, 8)
+        local_player.playerEntity.position = Vector2(0, 6)
         running_save.init(local_player)
 
         try:
