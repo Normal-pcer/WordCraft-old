@@ -92,7 +92,7 @@ class WorldRenderer:
                 #     self.character, True, self.color, (200, 200, 200)),
                 #     destination)
                 pygame.draw.rect(window, (0, 0, 0), (
-                    destination[0], destination[1]+15, self.fontSize,
+                    destination[0], destination[1] + 15, self.fontSize,
                     self.fontSize), 2)
 
     class EntityTexture:
@@ -231,6 +231,11 @@ class WorldRenderer:
                         screen_x <= mouse_pos[0] < screen_x + self.fontSize and
                         screen_y <= mouse_pos[1] - 15 < screen_y + self.fontSize):
                     texture.selected = True
+                    if pygame.mouse.get_pressed()[0]:
+                        print(pygame.mouse.get_pressed())
+                        self.runningSave.remove_block(
+                            int(player_feet_x - player_to_left_blocks) + blocks_x,
+                            int(player_feet_y + player_to_top_blocks) - blocks_y)
                 else:
                     texture.selected = False
                 texture.blit(self.gameWindow, (screen_x, screen_y))

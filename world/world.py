@@ -230,3 +230,13 @@ class World:
             [int(entity.position.x) % 16].is_solid())) or (
             container_chunk.grid[int(entity.position.y)]
             [int(entity.position.x) % 16].is_solid())
+
+    def remove_block(self, x, y):
+        if not self.Chunk.bottomEdge < y < self.Chunk.topEdge:
+            return False
+        required_id = x // 16
+        for i in self.loadedChunks:
+            if i.chunkId == required_id:
+                i.grid[y][x%16] = self.Chunk.empty_block()
+                return True
+        return False
