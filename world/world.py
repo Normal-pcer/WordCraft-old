@@ -90,6 +90,7 @@ class World:
         Returns:
             Target chunk object
         """
+        print("load", chunk_id)
         result_chunk = self.Chunk.empty(chunk_id)
         file_content = self.path.read_file_content(
             result_chunk.get_storage_name())
@@ -156,16 +157,18 @@ class World:
 
         required_chunks = list()
         for i in range(min_id, max_id + 1):  # Make sure all chunks are loaded
-            index = -1
-            for j in range(len(self.loadedChunks)):
-                element = self.loadedChunks[j]
-                if element.chunkId == i:
-                    index = j
-                    required_chunks.append(self.loadedChunks[j])
-                    break
-            if index == -1:  # Not loaded
-                required_chunks.append(self.load_chunk(
-                    i) if allow_load else self.Chunk.empty(i))
+            # index = -1
+            # for j in range(len(self.loadedChunks)):
+            #     element = self.loadedChunks[j]
+            #     if element.chunkId == i:
+            #         index = j
+            #         required_chunks.append(self.loadedChunks[j])
+            #         break
+            # if index == -1:  # Not loaded
+            #     required_chunks.append(self.load_chunk(
+            #         i) if allow_load else self.Chunk.empty(i))
+
+            required_chunks.append(self.get_chunk(i))
         catted_grid = [[] for _ in range(top - bottom + 1)]
         for i in required_chunks:
             result = i.grid[bottom:top + 1]

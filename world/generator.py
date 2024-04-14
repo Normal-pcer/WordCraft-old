@@ -16,6 +16,7 @@ class Generator:
         self.generatorType = gen_type
 
     def generate_chunk(self, chunk_id: int):
+        print("generate")
         from world.chunk import Chunk
         from block import Block
         from util import Identifier

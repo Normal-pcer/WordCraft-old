@@ -16,6 +16,7 @@ class WorldRenderer:
 
     runningSave: World
     fontSize = 60
+    tmp = list()
 
     class BlockTexture:
         """
@@ -26,12 +27,12 @@ class WorldRenderer:
         import pygame
 
         character: str
-        color: Tuple[int]
+        color: Tuple[int, int, int]
         font: pygame.font.Font
         selected: bool
         fontSize: int
 
-        def __init__(self, character: str, color: Tuple[int],
+        def __init__(self, character: str, color: Tuple[int, int, int],
                      font="Microsoft YaHei", selected=False, font_size=60):
             self.character = character
             self.color = color
@@ -222,6 +223,10 @@ class WorldRenderer:
         screen_x = (player_feet_in_screen_x - self.fontSize *
                     (player_to_left_blocks - (player_feet_x - int(player_feet_x))))
 
+        self.tmp.append(self.runningSave.get_block(-5, 3))
+        if self.tmp.__len__() > 2 and self.tmp[-1] != self.tmp[-2]:
+            debugger = True
+
         for blocks_y in range(len(grid)):
             for blocks_x in range(len(grid[0])):
                 mouse_pos = self.pygame.mouse.get_pos()
@@ -231,6 +236,10 @@ class WorldRenderer:
                         screen_x <= mouse_pos[0] < screen_x + self.fontSize and
                         screen_y <= mouse_pos[1] - 15 < screen_y + self.fontSize):
                     texture.selected = True
+                    (self.BlockTexture(str((
+                        int(player_feet_x - player_to_left_blocks) + blocks_x,
+                        int(player_feet_y + player_to_top_blocks) - blocks_y)), (0, 0, 0))
+                     .blit(self.gameWindow, (0, 30)))
                     if pygame.mouse.get_pressed()[0]:
                         print(pygame.mouse.get_pressed())
                         self.runningSave.remove_block(
