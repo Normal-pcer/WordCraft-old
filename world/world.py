@@ -90,7 +90,7 @@ class World:
         Returns:
             Target chunk object
         """
-        print("load", chunk_id)
+        print("load", chunk_id, self.loadedChunks)
         result_chunk = self.Chunk.empty(chunk_id)
         file_content = self.path.read_file_content(
             result_chunk.get_storage_name())

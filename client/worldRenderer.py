@@ -223,8 +223,9 @@ class WorldRenderer:
         screen_x = (player_feet_in_screen_x - self.fontSize *
                     (player_to_left_blocks - (player_feet_x - int(player_feet_x))))
 
-        self.tmp.append(self.runningSave.get_block(-5, 3))
-        if self.tmp.__len__() > 2 and self.tmp[-1] != self.tmp[-2]:
+        self.tmp.append(self.runningSave.get_block(-5, 3).blockId)
+        if self.tmp.__len__() > 2 and str(self.tmp[-1]) != str(self.tmp[-2]):
+            print(self.tmp[-1], self.tmp[-2])
             debugger = True
 
         for blocks_y in range(len(grid)):

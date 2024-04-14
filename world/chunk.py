@@ -3,6 +3,7 @@ from typing import List
 from block import Block
 from util import Identifier
 from entity import Entity
+from copy import deepcopy
 
 inited: bool = False
 
@@ -26,11 +27,11 @@ class Chunk:
 
     @staticmethod
     def empty_block():
-        return emptyBlock
+        return deepcopy(emptyBlock)
 
     @staticmethod
     def empty_grid():
-        return emptyGrid
+        return deepcopy(emptyGrid)
 
     def __init__(self, chunk_id: int):
         self.chunkId = chunk_id
