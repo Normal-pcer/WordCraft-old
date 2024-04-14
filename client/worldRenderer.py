@@ -1,4 +1,13 @@
-import pygame.draw
+import json
+import math
+from time import perf_counter
+from typing import List, Tuple
+
+import pygame
+
+from entity import Player
+from util import Identifier, Vector2, Read, Debug
+from world import World
 
 _cache_texture = {}
 
@@ -8,12 +17,9 @@ class WorldRenderer:
     wordcraft.client.WorldRenderer
     Rendering objects (blocks, entities, etc.) in the world on game window.
     """
-    import pygame
-    from entity import Player
-    from world import World
+
     gameWindow = pygame.Surface
     relativePlayer: Player
-
     runningSave: World
     fontSize = 60
     tmp = list()
@@ -22,9 +28,6 @@ class WorldRenderer:
         """
         wordcraft.client.WorldRenderer.BlockTexture
         """
-        from typing import Tuple
-        from util import Identifier
-        import pygame
 
         character: str
         color: Tuple[int, int, int]
@@ -36,7 +39,7 @@ class WorldRenderer:
                      font="Microsoft YaHei", selected=False, font_size=60):
             self.character = character
             self.color = color
-            self.font = self.pygame.font.SysFont(font, font_size)
+            self.font = pygame.font.SysFont(font, font_size)
             self.selected = selected
             self.fontSize = font_size
 
@@ -49,57 +52,32 @@ class WorldRenderer:
             """
             if str(identifier) in _cache_texture:
                 return _cache_texture[str(identifier)]
-            from util import Read, Debug
-            # Read index of texture packs
+
             textures_index_file = Read.read_str(
                 "textures/index.json", default=lambda e: Debug.Log.warning(
                     "Exception while reading textures index: " + repr(e)))
             if textures_index_file is not None:
-                import json
-                try:
-                    textures_index = json.loads(textures_index_file)
-                    # Read texture packs in json order
-                    for texture_pack in textures_index:
-                        block_json_file = Read.read_str(
-                            "textures/" + texture_pack + "/" +
-                            identifier.namespace + "/blocks/blocks.json")
-                        try:
-                            if block_json_file is None:
-                                continue
-                            else:
-                                blocks_texture_dict = json.loads(
-                                    block_json_file)
-                                if identifier.path in blocks_texture_dict:
-                                    _cache_texture[str(identifier)] = (
-                                        cls(*blocks_texture_dict[identifier.path]))
-                                    return cls(*blocks_texture_dict[identifier.path])
-                                else:
-                                    continue
-                        except json.decoder.JSONDecodeError as exception:
-                            Debug.Log.warning(
-                                "Exception while loading " + "textures/" + texture_pack
-                                + "/" + identifier.namespace + "/blocks/blocks.json" + ":"
-                                + repr(exception))
-                except json.decoder.JSONDecodeError as exception:
-                    Debug.Log.warning(
-                        "Exception while loading textures index: " + repr(exception))
-            return cls(*default)
+                textures_index = json.loads(textures_index_file)
+
+                for texture_pack in textures_index:
+                    block_json_file = Read.read_str(
+                        f"textures/{texture_pack}/{identifier.namespace}/blocks/blocks.json")
+                    if block_json_file is not None:
+                        blocks_texture_dict = json.loads(block_json_file)
+                        if identifier.path in blocks_texture_dict:
+                            _cache_texture[str(identifier)] = (
+                                cls(*blocks_texture_dict[identifier.path]))
+                            return cls(*blocks_texture_dict[identifier.path])
 
         def blit(self, window: pygame.surface.Surface, destination: tuple):
             window.blit(self.font.render(self.character,
                                          True, self.color), destination)
             if self.selected:
-                # window.blit(self.font.render(
-                #     self.character, True, self.color, (200, 200, 200)),
-                #     destination)
                 pygame.draw.rect(window, (0, 0, 0), (
                     destination[0], destination[1] + 15, self.fontSize,
                     self.fontSize), 2)
 
     class EntityTexture:
-        from typing import Tuple, List
-        from util import Identifier, Vector2
-        import pygame
 
         characters: List[str]
         color: Tuple[int]
@@ -110,7 +88,7 @@ class WorldRenderer:
                      font_size=60):
             self.characters = characters
             self.color = color
-            self.font = self.pygame.font.SysFont(font, font_size)
+            self.font = pygame.font.SysFont(font, font_size)
             self.fontSize = font_size
             ...
 
@@ -124,47 +102,24 @@ class WorldRenderer:
 
             if str(identifier) in _cache_texture:
                 return _cache_texture[str(identifier)]
-            from util import Read, Debug
-            # Read index of texture packs
+
             textures_index_file = Read.read_str(
                 "textures/index.json", default=lambda e: Debug.Log.warning(
                     "Exception while reading textures index: " + repr(e)))
             if textures_index_file is not None:
-                import json
-                try:
-                    textures_index = json.loads(textures_index_file)
-                    # Read texture packs in json order
-                    for texture_pack in textures_index:
-                        block_json_file = Read.read_str(
-                            "textures/" + texture_pack + "/" +
-                            identifier.namespace + "/entities/entities.json")
-                        try:
-                            if block_json_file is None:
-                                continue
-                            else:
-                                blocks_texture_dict = json.loads(
-                                    block_json_file)
-                                if identifier.path in blocks_texture_dict:
-                                    _cache_texture[str(identifier)] = (
-                                        cls(*blocks_texture_dict[identifier.path]))
-                                    return cls(*blocks_texture_dict[identifier.path])
-                                else:
-                                    continue
-                        except json.decoder.JSONDecodeError as exception:
-                            Debug.Log.warning(
-                                "Exception while loading " + "textures/" + texture_pack
-                                + "/" + identifier.namespace + "/entities/entities.json" + ":"
-                                + repr(exception))
-                except json.decoder.JSONDecodeError as exception:
-                    Debug.Log.warning(
-                        "Exception while loading textures index: " + repr(exception))
-            return cls(*default)
+                textures_index = json.loads(textures_index_file)
+
+                for texture_pack in textures_index:
+                    block_json_file = Read.read_str(
+                        f"textures/{texture_pack}/{identifier.namespace}/entities/entities.json")
+                    if block_json_file is not None:
+                        blocks_texture_dict = json.loads(block_json_file)
+                        if identifier.path in blocks_texture_dict:
+                            _cache_texture[str(identifier)] = (
+                                cls(*blocks_texture_dict[identifier.path]))
+                            return cls(*blocks_texture_dict[identifier.path])
 
         def blit(self, window: pygame.surface.Surface, destination: Vector2) -> None:
-            """
-            Display this on a game window.
-            destination: left top screen position
-            """
             for y_block in range(len(self.characters)):
                 for x_block in range(len(self.characters[y_block])):
                     element = self.characters[y_block][x_block]
@@ -173,8 +128,6 @@ class WorldRenderer:
                     window.blit(self.font.render(element, True, self.color),
                                 (p_x, p_y))
 
-            # return self.font.render(self.character, True, self.color)
-
     def __init__(self, game_window: pygame.Surface, running_save: World,
                  player: Player):
         self.gameWindow = game_window
@@ -182,10 +135,6 @@ class WorldRenderer:
         self.relativePlayer = player
 
     def frame(self):
-        import math
-        from util import Vector2
-        from time import perf_counter
-
         # Calculate grid size required
         width, height = self.gameWindow.get_size()
         half_width = (width - self.fontSize) / 2
@@ -200,9 +149,6 @@ class WorldRenderer:
         player_feet_in_screen_x = half_width - self.fontSize / 2
         player_feet_in_screen_y = quarter_height * 3 - self.fontSize / 2
 
-        # player_feet_x = int(self.relativePlayer.playerEntity.position.x)
-        # player_feet_y = int(self.relativePlayer.playerEntity.position.y)
-
         current_time = perf_counter()
         pass_time = current_time - self.runningSave.lastTickTime
         player_feet_x = (self.relativePlayer.playerEntity.position.x +
@@ -210,14 +156,12 @@ class WorldRenderer:
         player_feet_y = (self.relativePlayer.playerEntity.position.y +
                          self.relativePlayer.playerEntity.speed.y * pass_time)
 
-        # Get blocks in the zone
         grid = self.runningSave.get_blocks(
             int(player_feet_x - player_to_left_blocks), int(player_feet_x + player_to_right_blocks),
             int(player_feet_y - player_to_bottom_blocks), int(player_feet_y + player_to_top_blocks))
 
         grid = grid[::-1]
 
-        # Rendering block position
         screen_y = (player_feet_in_screen_y - self.fontSize *
                     (player_to_top_blocks - 1 - (player_feet_y - int(player_feet_y))))
         screen_x = (player_feet_in_screen_x - self.fontSize *
@@ -230,10 +174,10 @@ class WorldRenderer:
 
         for blocks_y in range(len(grid)):
             for blocks_x in range(len(grid[0])):
-                mouse_pos = self.pygame.mouse.get_pos()
+                mouse_pos = pygame.mouse.get_pos()
                 texture = self.BlockTexture.get_block_texture(
                     grid[blocks_y][blocks_x].blockId)
-                if (self.pygame.mouse.get_focused() and
+                if (pygame.mouse.get_focused() and
                         screen_x <= mouse_pos[0] < screen_x + self.fontSize and
                         screen_y <= mouse_pos[1] - 15 < screen_y + self.fontSize):
                     texture.selected = True
